@@ -6,7 +6,7 @@ public class Main extends FrontEnd {
     private final JLabel titleLabel = new JLabel("JAVA TICKET");
     private final JButton btnLogin = new JButton("Login");
     private final JButton btnCerrar = new JButton("Cerrar");
-    private final String imagen = "/proyectocal/imagenes/FONDO1.jpg";
+    private final String imagen = "/proyectocal/imagenes/fondoNeg.png";
 
     public Main() {
         FrameConFondo(this, cargarFondo(imagen));

@@ -1,13 +1,18 @@
 package project;
 
 import com.toedter.calendar.JDateChooser;
+import java.awt.GridLayout;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
+import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
@@ -28,10 +33,28 @@ public final class GestionEventos {
         String[] tipos = {"Deportivo", "Musical", "Religioso"};
         String tipoSeleccionado = (String) JOptionPane.showInputDialog(null, "Seleccione el tipo de evento:", "Crear Evento", JOptionPane.QUESTION_MESSAGE, null, tipos, tipos[0]);
         if (tipoSeleccionado == null) return;
+
+        switch (tipoSeleccionado) {
+            case "Deportivo":
+                JOptionPane.showMessageDialog(null, "LA CANTIDAD MAXIMA de gente permitida es de 20 mil.");
+                break;
+            case "Musical":
+                JOptionPane.showMessageDialog(null, "LA CANTIDAD MAXIMA permitida es de 25 mil (por el uso de la grama).\nSe le cobra un seguro por la grama de 30% sobre el valor acordado de renta.");
+                break;
+            case "Religioso":
+                JOptionPane.showMessageDialog(null, "LA CANTIDAD MAXIMA permitida es de 30 mil.\nSe cobra 2000 lps fijos de seguro por el desgaste de la grama.");
+                break;
+        }
+
         JTextField codigo = new JTextField();
         JTextField titulo = new JTextField();
         JTextField descripcion = new JTextField();
         JDateChooser fechaChooser = new JDateChooser();
+        
+        fechaChooser.getJCalendar().getDayChooser().addDateEvaluator(new OcupadoDateEvaluator());
+        fechaChooser.getJCalendar().getDayChooser().addDateEvaluator(new WarningDateEvaluator());
+        fechaChooser.repaint();
+
         JTextField monto = new JTextField();
         Object[] message = {"Código:", codigo, "Título:", titulo, "Descripción:", descripcion, "Fecha:", fechaChooser, "Monto Renta:", monto};
         int option = JOptionPane.showConfirmDialog(null, message, "Datos del Evento", JOptionPane.OK_CANCEL_OPTION);
@@ -43,7 +66,43 @@ public final class GestionEventos {
                 return;
             }
             LocalDate fechaEvento = fechaSeleccionada.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+
+            if (!Usuarios.esAdmin()) {
+                if (fechaEvento.isBefore(LocalDate.now()) || fechaEvento.isEqual(LocalDate.now())) {
+                    JOptionPane.showMessageDialog(null, "No se pueden crear eventos en fechas pasadas o el mismo día.");
+                    return;
+                }
+            }
+            
+            for (Evento eventoExistente : eventos) {
+                if (eventoExistente.getFecha().equals(fechaEvento) && !eventoExistente.isCancelado()) {
+                    JOptionPane.showMessageDialog(null, "Esta fecha ya está ocupada por otro evento.");
+                    return;
+                }
+            }
+
             double montoRenta = Double.parseDouble(monto.getText());
+
+            if (tipoSeleccionado.equals("Religioso") && montoRenta > 30000) {
+                JOptionPane.showMessageDialog(null, "El monto de renta para eventos religiosos no puede ser mayor a 30,000 Lps.");
+                return;
+            }
+
+            // --- INICIO DE LA MODIFICACIÓN ---
+            // El recargo no afecta a administradores ni a eventos religiosos
+            if (!Usuarios.esAdmin() && !tipoSeleccionado.equals("Religioso")) {
+                long daysBetween = ChronoUnit.DAYS.between(LocalDate.now(), fechaEvento);
+                if (daysBetween < 7) {
+                    int confirm = JOptionPane.showConfirmDialog(null, "Está creando un evento con menos de una semana de anticipación. Se aplicará un recargo del 15%. ¿Desea continuar?", "Aviso de Recargo", JOptionPane.YES_NO_OPTION);
+                    if (confirm == JOptionPane.YES_OPTION) {
+                        montoRenta *= 1.15;
+                    } else {
+                        return;
+                    }
+                }
+            }
+            // --- FIN DE LA MODIFICACIÓN ---
+
             String creador = Usuarios.usuarioLogeado.getUser();
             if (buscarEventoRecursivo(codigo.getText(), 0) != null) {
                 JOptionPane.showMessageDialog(null, "El código del evento ya existe.");
@@ -108,6 +167,11 @@ public final class GestionEventos {
             JTextField titulo = new JTextField(evento.getTitulo());
             JTextField descripcion = new JTextField(evento.getDescripcion());
             JDateChooser fechaChooser = new JDateChooser(Date.from(evento.getFecha().atStartOfDay(ZoneId.systemDefault()).toInstant()));
+            
+            fechaChooser.getJCalendar().getDayChooser().addDateEvaluator(new OcupadoDateEvaluator());
+            fechaChooser.getJCalendar().getDayChooser().addDateEvaluator(new WarningDateEvaluator());
+            fechaChooser.repaint();
+
             Object[] message = {"Título:", titulo, "Descripción:", descripcion, "Fecha:", fechaChooser};
             int option = JOptionPane.showConfirmDialog(null, message, "Editar Datos Generales", JOptionPane.OK_CANCEL_OPTION);
             if (option == JOptionPane.OK_OPTION) {
@@ -122,14 +186,77 @@ public final class GestionEventos {
         } else if (seleccion == 1) {
             if (evento instanceof EventoDeportivo) {
                 EventoDeportivo ed = (EventoDeportivo) evento;
-                String jugador = JOptionPane.showInputDialog("Nombre del jugador a añadir para el equipo 1 (" + ed.equipo1 + "):");
-                if(jugador != null && !jugador.isEmpty()) ed.jugadoresEq1.add(jugador);
-                jugador = JOptionPane.showInputDialog("Nombre del jugador a añadir para el equipo 2 (" + ed.equipo2 + "):");
-                if(jugador != null && !jugador.isEmpty()) ed.jugadoresEq2.add(jugador);
+                int tamanoEquipo = ed.tipoDeporte.getTamanoEquipo();
+
+                // Panel para Equipo 1
+                JPanel panelEquipo1 = new JPanel(new GridLayout(tamanoEquipo, 2, 5, 5));
+                panelEquipo1.setBorder(BorderFactory.createTitledBorder("Jugadores de " + ed.equipo1));
+                List<JTextField> camposJugadores1 = new ArrayList<>();
+                for (int i = 0; i < tamanoEquipo; i++) {
+                    panelEquipo1.add(new JLabel("Jugador " + (i + 1) + ":"));
+                    JTextField campo = new JTextField();
+                    camposJugadores1.add(campo);
+                    panelEquipo1.add(campo);
+                }
+
+                int result1 = JOptionPane.showConfirmDialog(null, panelEquipo1, "Añadir Jugadores a " + ed.equipo1, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (result1 == JOptionPane.OK_OPTION) {
+                    for (JTextField campo : camposJugadores1) {
+                        if (!campo.getText().trim().isEmpty()) {
+                            ed.jugadoresEq1.add(campo.getText().trim());
+                        }
+                    }
+                }
+
+                // Panel para Equipo 2
+                JPanel panelEquipo2 = new JPanel(new GridLayout(tamanoEquipo, 2, 5, 5));
+                panelEquipo2.setBorder(BorderFactory.createTitledBorder("Jugadores de " + ed.equipo2));
+                List<JTextField> camposJugadores2 = new ArrayList<>();
+                for (int i = 0; i < tamanoEquipo; i++) {
+                    panelEquipo2.add(new JLabel("Jugador " + (i + 1) + ":"));
+                    JTextField campo = new JTextField();
+                    camposJugadores2.add(campo);
+                    panelEquipo2.add(campo);
+                }
+
+                int result2 = JOptionPane.showConfirmDialog(null, panelEquipo2, "Añadir Jugadores a " + ed.equipo2, JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                if (result2 == JOptionPane.OK_OPTION) {
+                    for (JTextField campo : camposJugadores2) {
+                        if (!campo.getText().trim().isEmpty()) {
+                            ed.jugadoresEq2.add(campo.getText().trim());
+                        }
+                    }
+                }
             } else if (evento instanceof EventoMusical) {
                 EventoMusical em = (EventoMusical) evento;
-                String staff = JOptionPane.showInputDialog("Nombre del miembro del staff a añadir:");
-                if(staff != null && !staff.isEmpty()) em.equipoStaff.add(staff);
+                try {
+                    int staffAAnadir = Integer.parseInt(JOptionPane.showInputDialog("¿Cuántos miembros de staff desea añadir?"));
+                    if (em.equipoStaff.size() + staffAAnadir > 40) {
+                        JOptionPane.showMessageDialog(null, "No se pueden añadir más de 40 miembros de staff en total.");
+                        return;
+                    }
+
+                    JPanel panelStaff = new JPanel(new GridLayout(staffAAnadir, 2, 5, 5));
+                    panelStaff.setBorder(BorderFactory.createTitledBorder("Añadir Staff"));
+                    List<JTextField> camposStaff = new ArrayList<>();
+                    for (int i = 0; i < staffAAnadir; i++) {
+                        panelStaff.add(new JLabel("Miembro " + (i + 1) + ":"));
+                        JTextField campo = new JTextField();
+                        camposStaff.add(campo);
+                        panelStaff.add(campo);
+                    }
+
+                    int result = JOptionPane.showConfirmDialog(null, panelStaff, "Añadir Miembros de Staff", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+                    if (result == JOptionPane.OK_OPTION) {
+                        for (JTextField campo : camposStaff) {
+                            if (!campo.getText().trim().isEmpty()) {
+                                em.equipoStaff.add(campo.getText().trim());
+                            }
+                        }
+                    }
+                } catch (NumberFormatException e) {
+                    JOptionPane.showMessageDialog(null, "Debe ingresar un número válido.");
+                }
             } else if (evento instanceof EventoReligioso) {
                 EventoReligioso er = (EventoReligioso) evento;
                 try {
