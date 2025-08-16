@@ -9,20 +9,29 @@ public final class Usuarios {
     public static LogicaUsuario usuarioLogeado = null;
 
     public static boolean validarUserVisual() {
-        JTextField userField = new JTextField(14);
-        JPasswordField passField = new JPasswordField(14);
+        // --- CÓDIGO CORREGIDO Y LIMPIO ---
+        // Este panel se crea y usa EXCLUSIVAMENTE para el diálogo emergente.
+        // Esto evita que aparezca una segunda interfaz de login en la pantalla principal.
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
+        
+        JTextField userField = new JTextField(14);
+        JPasswordField passField = new JPasswordField(14);
+
         gbc.insets = new Insets(6, 6, 6, 6);
         gbc.anchor = GridBagConstraints.WEST;
         gbc.gridx = 0; gbc.gridy = 0; panel.add(new JLabel("Usuario:"), gbc);
         gbc.gridx = 1; gbc.gridy = 0; gbc.fill = GridBagConstraints.HORIZONTAL; panel.add(userField, gbc);
         gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE; panel.add(new JLabel("Contraseña:"), gbc);
         gbc.gridx = 1; gbc.gridy = 1; gbc.fill = GridBagConstraints.HORIZONTAL; panel.add(passField, gbc);
+
         int result = JOptionPane.showConfirmDialog(null, panel, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+        
         if (result != JOptionPane.OK_OPTION) return false;
+        
         String user = userField.getText();
         String pass = new String(passField.getPassword());
+        
         if (user.trim().isEmpty() || pass.trim().isEmpty()) {
             JOptionPane.showMessageDialog(null, "Usuario o Contraseña vacíos");
             return false;
@@ -42,6 +51,8 @@ public final class Usuarios {
         JOptionPane.showMessageDialog(null, "Usuario no encontrado");
         return false;
     }
+
+    // ... (El resto de los métodos de la clase permanecen igual)
 
     public static int indiceUsuarios(String user) {
         for (int i = 0; i < users.size(); i++) {

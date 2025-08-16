@@ -3,15 +3,18 @@ package project;
 import javax.swing.*;
 
 public class EventosFrame extends FrontEnd {
+
     private JButton btnCrear = new JButton("Crear Evento");
     private JButton btnEditar = new JButton("Editar Evento");
     private JButton btnEliminar = new JButton("Cancelar Evento");
     private JButton btnVer = new JButton("Ver Evento");
     private JButton btnRegresar = new JButton("Regresar al Menú");
     private JLabel tit = new JLabel("Gestión de Eventos");
+    private final String imagen = "/proyectocal/imagenes/fondoNeg.png";
 
     public EventosFrame() {
-        FrameConFondo(this, cargarFondo("/proyectocal/imagenes/FONDO1.jpg"));
+        FrameConFondo(this, cargarFondo(imagen));
+        transicionSuave.fadeIn(this);
         titulo1(tit);
         if (Usuarios.esLimitado()) {
             btnCrear.setEnabled(false);
@@ -29,8 +32,7 @@ public class EventosFrame extends FrontEnd {
         btnEliminar.addActionListener(e -> GestionEventos.eliminarEvento());
         btnVer.addActionListener(e -> GestionEventos.verEvento());
         btnRegresar.addActionListener(e -> {
-            new MenuFrame().setVisible(true);
-            this.dispose();
+        transicionSuave.fadeOut(this, () -> new MenuFrame());
         });
     }
 }

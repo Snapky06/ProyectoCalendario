@@ -10,6 +10,7 @@ public class Main extends FrontEnd {
 
     public Main() {
         FrameConFondo(this, cargarFondo(imagen));
+        transicionSuave.fadeIn(this);
         titulo1(titleLabel);
         JButton[] botones = {btnLogin, btnCerrar};
         layoutBtn(botones);
@@ -21,8 +22,7 @@ public class Main extends FrontEnd {
         btnCerrar.addActionListener(e -> System.exit(0));
         btnLogin.addActionListener(e -> {
             if (Usuarios.validarUserVisual()) {
-                new MenuFrame().setVisible(true);
-                this.dispose();
+                    transicionSuave.fadeOut(this, () -> new MenuFrame());
             }
         });
     }

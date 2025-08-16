@@ -3,45 +3,44 @@ package project;
 import javax.swing.*;
 
 public class MenuFrame extends FrontEnd {
+
     private JButton btnEventos = new JButton("Administración de Eventos");
     private JButton btnUsuarios = new JButton("Administración de Usuarios");
     private JButton btnReportes = new JButton("Reportes");
     private JButton btnSalir = new JButton("Cerrar Sesión");
     private JLabel tit = new JLabel("Menú Principal");
-    
-    public MenuFrame(){
-        FrameConFondo(this, cargarFondo("/proyectocal/imagenes/FONDO1.jpg"));
+    private final String imagen = "/proyectocal/imagenes/fondoNeg.png";
+
+    public MenuFrame() {
+        FrameConFondo(this, cargarFondo(imagen));
+        transicionSuave.fadeIn(this);
         titulo1(tit);
         JButton[] botones = {btnEventos, btnUsuarios, btnReportes, btnSalir};
         layoutBtn(botones);
         acciones();
         this.setVisible(true);
     }
-    
-    public void acciones(){
+
+    public void acciones() {
         btnUsuarios.addActionListener(e -> {
             if (Usuarios.esAdmin()) {
-                new usuariosFrame().setVisible(true);
-                this.dispose();
+                transicionSuave.fadeOut(this, () -> new usuariosFrame());
             } else {
                 JOptionPane.showMessageDialog(this, "Acceso denegado. Solo para administradores.");
             }
         });
 
         btnEventos.addActionListener(e -> {
-            new EventosFrame().setVisible(true);
-            this.dispose();
+            transicionSuave.fadeOut(this, () -> new EventosFrame());
         });
 
         btnReportes.addActionListener(e -> {
-            new ReportesFrame().setVisible(true);
-            this.dispose();
+            transicionSuave.fadeOut(this, () -> new ReportesFrame());
         });
 
         btnSalir.addActionListener(e -> {
             Usuarios.usuarioLogeado = null;
-            new Main().setVisible(true);
-            this.dispose();
+        transicionSuave.fadeOut(this, () -> new Main());
         });
     }
 }

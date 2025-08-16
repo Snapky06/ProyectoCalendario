@@ -3,14 +3,17 @@ package project;
 import javax.swing.*;
 
 public class usuariosFrame extends FrontEnd {
+
     private JButton btnCrear = new JButton("Crear Usuario");
     private JButton btnEditar = new JButton("Editar Usuario");
     private JButton btnBorrar = new JButton("Borrar Usuario");
     private JButton btnRegresar = new JButton("Regresar al Menú");
     private JLabel tit = new JLabel("Gestión de Usuarios");
+    private final String imagen = "/proyectocal/imagenes/fondoNeg.png";
 
     public usuariosFrame() {
-        FrameConFondo(this, cargarFondo("/proyectocal/imagenes/FONDO1.jpg"));
+        FrameConFondo(this, cargarFondo(imagen));
+        transicionSuave.fadeIn(this);
         titulo1(tit);
         JButton[] botones = {btnCrear, btnEditar, btnBorrar, btnRegresar};
         layoutBtn(botones);
@@ -20,7 +23,7 @@ public class usuariosFrame extends FrontEnd {
 
     public void acciones() {
         btnCrear.addActionListener(e -> new crearUsuarioFrame());
-        
+
         btnEditar.addActionListener(e -> {
             String userToEdit = JOptionPane.showInputDialog(this, "Ingrese el username del usuario a editar:");
             if (userToEdit != null && !userToEdit.trim().isEmpty()) {
@@ -41,8 +44,7 @@ public class usuariosFrame extends FrontEnd {
         });
 
         btnRegresar.addActionListener(e -> {
-            new MenuFrame().setVisible(true);
-            this.dispose();
+            transicionSuave.fadeOut(this, () -> new MenuFrame());
         });
     }
 }
