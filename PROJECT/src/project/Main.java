@@ -1,28 +1,28 @@
 package project;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class Main extends FrontEnd {
     private final JLabel titleLabel = new JLabel("JAVA TICKET");
     private final JButton btnLogin = new JButton("Login");
     private final JButton btnCerrar = new JButton("Cerrar");
-    private final String imagen = "/proyectocal/imagenes/fondoNeg.png";
+    private final String imagen = "/proyectocal/imagenes/prueba1.jpg";
 
     public Main() {
         FrameConFondo(this, cargarFondo(imagen));
-        transicionSuave.fadeIn(this);
         titulo1(titleLabel);
         JButton[] botones = {btnLogin, btnCerrar};
         layoutBtn(botones);
         acciones();
-        this.setVisible(true);
+        transicionSuave.fadeIn(this);
     }
 
     public void acciones() {
         btnCerrar.addActionListener(e -> System.exit(0));
         btnLogin.addActionListener(e -> {
             if (Usuarios.validarUserVisual()) {
-                    transicionSuave.fadeOut(this, () -> new MenuFrame());
+                transicionSuave.fadeOut(this, () -> new MenuFrame());
             }
         });
     }

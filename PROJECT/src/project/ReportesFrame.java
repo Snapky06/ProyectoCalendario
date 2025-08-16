@@ -11,7 +11,7 @@ public class ReportesFrame extends FrontEnd {
     private JButton btnPerfil = new JButton("Ver Mi Perfil");
     private JButton btnRegresar = new JButton("Regresar al Menú");
     private JLabel tit = new JLabel("Reportes");
-    private final String imagen = "/proyectocal/imagenes/fondoNeg.png";
+    private final String imagen = "/proyectocal/imagenes/prueba4.jpg";
 
     public ReportesFrame() {
         FrameConFondo(this, cargarFondo(imagen));

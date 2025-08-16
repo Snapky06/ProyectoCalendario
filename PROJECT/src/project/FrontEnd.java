@@ -8,12 +8,13 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class FrontEnd extends JFrame {
-    // Paleta de colores sólidos para una interfaz limpia y sin errores visuales
-    private static final Color BACKGROUND_COMPONENTS = new Color(45, 55, 75); // Azul oscuro sólido
-    private static final Color BUTTON_HOVER_BACKGROUND = new Color(70, 80, 100); // Tono más claro para el hover
-    private static final Color TEXT_COLOR = new Color(230, 230, 230);
-    private static final Color BORDER_COLOR = new Color(0, 191, 255);
-    private static final Color BORDER_HOVER_COLOR = new Color(90, 210, 255);
+
+    // Paleta de colores refinada con un hover más oscuro y texto off-white
+    private static final Color BACKGROUND_COMPONENTS = new Color(45, 45, 58);
+    private static final Color BUTTON_HOVER_BACKGROUND = new Color(30, 32, 42); // Azul muy oscuro para el fondo del hover
+    private static final Color TEXT_COLOR = new Color(236, 236, 234); // Blanco hueso (off-white)
+    private static final Color BORDER_COLOR = new Color(68, 85, 132);
+    private static final Color BORDER_HOVER_COLOR = new Color(40, 50, 70); // Borde oscuro para el hover
 
     public FrontEnd() {}
 
@@ -29,7 +30,7 @@ public class FrontEnd extends JFrame {
                 if (bg != null) {
                     g.drawImage(bg, 0, 0, getWidth(), getHeight(), this);
                 } else {
-                    g.setColor(new Color(15, 15, 25));
+                    g.setColor(new Color(28, 28, 36));
                     g.fillRect(0, 0, getWidth(), getHeight());
                 }
             }
@@ -55,46 +56,46 @@ public class FrontEnd extends JFrame {
     }
 
     public void titulo1(JLabel titleLabel) {
-        titleLabel.setFont(new Font("Segoe UI", Font.BOLD, 80));
+        titleLabel.setFont(new Font("Georgia", Font.BOLD, 85)); // Fuente elegante
         titleLabel.setForeground(TEXT_COLOR);
-        titleLabel.setBackground(BACKGROUND_COMPONENTS); // Fondo sólido
+        titleLabel.setBackground(BACKGROUND_COMPONENTS);
         titleLabel.setOpaque(true);
         titleLabel.setBorder(BorderFactory.createCompoundBorder(
-            BorderFactory.createLineBorder(BORDER_COLOR, 1),
-            BorderFactory.createEmptyBorder(20, 40, 20, 40)
+            BorderFactory.createLineBorder(BORDER_COLOR, 3),
+            BorderFactory.createEmptyBorder(20, 45, 20, 45)
         ));
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
-        gbc.insets = new Insets(40, 20, 50, 20);
+        gbc.insets = new Insets(60, 20, 70, 20);
         gbc.anchor = GridBagConstraints.NORTH;
         getContentPane().add(titleLabel, gbc);
     }
 
     public void disBoton(JButton[] btn) {
-        Font buttonFont = new Font("Segoe UI", Font.PLAIN, 28);
-        Dimension buttonSize = new Dimension(450, 80);
+        Font buttonFont = new Font("Georgia", Font.BOLD, 28); // Fuente elegante y tamaño ajustado
+        Dimension buttonSize = new Dimension(500, 80);
 
         for (JButton b : btn) {
             b.setFont(buttonFont);
             b.setPreferredSize(buttonSize);
             b.setForeground(TEXT_COLOR);
-            b.setBackground(BACKGROUND_COMPONENTS); // Fondo sólido
-            b.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 1));
+            b.setBackground(BACKGROUND_COMPONENTS);
+            b.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 3));
             b.setFocusPainted(false);
-            b.setContentAreaFilled(true); // Asegura que el fondo del botón sea visible y opaco
+            b.setContentAreaFilled(true);
 
             b.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseEntered(MouseEvent e) {
                     b.setBackground(BUTTON_HOVER_BACKGROUND);
-                    b.setBorder(BorderFactory.createLineBorder(BORDER_HOVER_COLOR, 2));
+                    b.setBorder(BorderFactory.createLineBorder(BORDER_HOVER_COLOR, 4));
                 }
 
                 @Override
                 public void mouseExited(MouseEvent e) {
                     b.setBackground(BACKGROUND_COMPONENTS);
-                    b.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 1));
+                    b.setBorder(BorderFactory.createLineBorder(BORDER_COLOR, 3));
                 }
             });
         }
@@ -113,7 +114,7 @@ public class FrontEnd extends JFrame {
             panel.add(buttonContainer);
 
             if (i < btn.length - 1) {
-                panel.add(Box.createRigidArea(new Dimension(0, 30)));
+                panel.add(Box.createRigidArea(new Dimension(0, 20)));
             }
         }
 

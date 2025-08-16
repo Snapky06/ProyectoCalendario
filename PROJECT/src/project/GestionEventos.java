@@ -34,12 +34,23 @@ public final class GestionEventos {
         String tipoSeleccionado = (String) JOptionPane.showInputDialog(null, "Seleccione el tipo de evento:", "Crear Evento", JOptionPane.QUESTION_MESSAGE, null, tipos, tipos[0]);
         if (tipoSeleccionado == null) return;
 
+        TipoDeporte tipoDeporteSeleccionado = null;
+        TipoMusica tipoMusicaSeleccionado = null;
+
         switch (tipoSeleccionado) {
             case "Deportivo":
                 JOptionPane.showMessageDialog(null, "LA CANTIDAD MAXIMA de gente permitida es de 20 mil.");
+                JComboBox<TipoDeporte> deportes = new JComboBox<>(TipoDeporte.values());
+                int optDeporte = JOptionPane.showOptionDialog(null, deportes, "Seleccione un Deporte", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+                if (optDeporte != JOptionPane.OK_OPTION) return;
+                tipoDeporteSeleccionado = (TipoDeporte) deportes.getSelectedItem();
                 break;
             case "Musical":
                 JOptionPane.showMessageDialog(null, "LA CANTIDAD MAXIMA permitida es de 25 mil (por el uso de la grama).\nSe le cobra un seguro por la grama de 30% sobre el valor acordado de renta.");
+                JComboBox<TipoMusica> musicas = new JComboBox<>(TipoMusica.values());
+                int optMusical = JOptionPane.showOptionDialog(null, musicas, "Seleccione un Género Musical", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE, null, null, null);
+                if (optMusical != JOptionPane.OK_OPTION) return;
+                tipoMusicaSeleccionado = (TipoMusica) musicas.getSelectedItem();
                 break;
             case "Religioso":
                 JOptionPane.showMessageDialog(null, "LA CANTIDAD MAXIMA permitida es de 30 mil.\nSe cobra 2000 lps fijos de seguro por el desgaste de la grama.");
@@ -88,8 +99,6 @@ public final class GestionEventos {
                 return;
             }
 
-            // --- INICIO DE LA MODIFICACIÓN ---
-            // El recargo no afecta a administradores ni a eventos religiosos
             if (!Usuarios.esAdmin() && !tipoSeleccionado.equals("Religioso")) {
                 long daysBetween = ChronoUnit.DAYS.between(LocalDate.now(), fechaEvento);
                 if (daysBetween < 7) {
@@ -101,7 +110,6 @@ public final class GestionEventos {
                     }
                 }
             }
-            // --- FIN DE LA MODIFICACIÓN ---
 
             String creador = Usuarios.usuarioLogeado.getUser();
             if (buscarEventoRecursivo(codigo.getText(), 0) != null) {
@@ -113,20 +121,14 @@ public final class GestionEventos {
                 case "Deportivo":
                     JTextField equipo1 = new JTextField();
                     JTextField equipo2 = new JTextField();
-                    JComboBox<TipoDeporte> deportes = new JComboBox<>(TipoDeporte.values());
-                    Object[] msgDeportivo = {"Equipo 1:", equipo1, "Equipo 2:", equipo2, "Deporte:", deportes};
+                    Object[] msgDeportivo = {"Equipo 1:", equipo1, "Equipo 2:", equipo2};
                     int optDeportivo = JOptionPane.showConfirmDialog(null, msgDeportivo, "Detalles Deportivos", JOptionPane.OK_CANCEL_OPTION);
                     if (optDeportivo == JOptionPane.OK_OPTION) {
-                        nuevoEvento = new EventoDeportivo(codigo.getText(), titulo.getText(), descripcion.getText(), fechaEvento, montoRenta, creador, equipo1.getText(), equipo2.getText(), (TipoDeporte) deportes.getSelectedItem());
+                        nuevoEvento = new EventoDeportivo(codigo.getText(), titulo.getText(), descripcion.getText(), fechaEvento, montoRenta, creador, equipo1.getText(), equipo2.getText(), tipoDeporteSeleccionado);
                     }
                     break;
                 case "Musical":
-                    JComboBox<TipoMusica> musicas = new JComboBox<>(TipoMusica.values());
-                    Object[] msgMusical = {"Tipo de Música:", musicas};
-                    int optMusical = JOptionPane.showConfirmDialog(null, msgMusical, "Detalles Musicales", JOptionPane.OK_CANCEL_OPTION);
-                    if (optMusical == JOptionPane.OK_OPTION) {
-                        nuevoEvento = new EventoMusical(codigo.getText(), titulo.getText(), descripcion.getText(), fechaEvento, montoRenta, creador, (TipoMusica) musicas.getSelectedItem());
-                    }
+                    nuevoEvento = new EventoMusical(codigo.getText(), titulo.getText(), descripcion.getText(), fechaEvento, montoRenta, creador, tipoMusicaSeleccionado);
                     break;
                 case "Religioso":
                     nuevoEvento = new EventoReligioso(codigo.getText(), titulo.getText(), descripcion.getText(), fechaEvento, montoRenta, creador);
@@ -188,12 +190,12 @@ public final class GestionEventos {
                 EventoDeportivo ed = (EventoDeportivo) evento;
                 int tamanoEquipo = ed.tipoDeporte.getTamanoEquipo();
 
-                // Panel para Equipo 1
                 JPanel panelEquipo1 = new JPanel(new GridLayout(tamanoEquipo, 2, 5, 5));
                 panelEquipo1.setBorder(BorderFactory.createTitledBorder("Jugadores de " + ed.equipo1));
                 List<JTextField> camposJugadores1 = new ArrayList<>();
                 for (int i = 0; i < tamanoEquipo; i++) {
-                    panelEquipo1.add(new JLabel("Jugador " + (i + 1) + ":"));
+                    String label = (tamanoEquipo == 1) ? "Jugador:" : "Jugador " + (i + 1) + ":";
+                    panelEquipo1.add(new JLabel(label));
                     JTextField campo = new JTextField();
                     camposJugadores1.add(campo);
                     panelEquipo1.add(campo);
@@ -208,12 +210,12 @@ public final class GestionEventos {
                     }
                 }
 
-                // Panel para Equipo 2
                 JPanel panelEquipo2 = new JPanel(new GridLayout(tamanoEquipo, 2, 5, 5));
                 panelEquipo2.setBorder(BorderFactory.createTitledBorder("Jugadores de " + ed.equipo2));
                 List<JTextField> camposJugadores2 = new ArrayList<>();
                 for (int i = 0; i < tamanoEquipo; i++) {
-                    panelEquipo2.add(new JLabel("Jugador " + (i + 1) + ":"));
+                    String label = (tamanoEquipo == 1) ? "Jugador:" : "Jugador " + (i + 1) + ":";
+                    panelEquipo2.add(new JLabel(label));
                     JTextField campo = new JTextField();
                     camposJugadores2.add(campo);
                     panelEquipo2.add(campo);
@@ -261,6 +263,10 @@ public final class GestionEventos {
                 EventoReligioso er = (EventoReligioso) evento;
                 try {
                     int convertidos = Integer.parseInt(JOptionPane.showInputDialog("Cantidad de personas convertidas:"));
+                    if (convertidos > EventoReligioso.MAX_CAPACIDAD) {
+                        JOptionPane.showMessageDialog(null, "El número de convertidos no puede exceder la capacidad máxima de " + EventoReligioso.MAX_CAPACIDAD + ".");
+                        return;
+                    }
                     er.personasConvertidas = convertidos;
                 } catch (NumberFormatException e) {
                     JOptionPane.showMessageDialog(null, "Debe ser un número válido.");

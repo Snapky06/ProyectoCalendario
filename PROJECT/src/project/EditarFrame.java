@@ -1,6 +1,8 @@
 package project;
 
 import javax.swing.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 public class EditarFrame {
     public EditarFrame(int userIndex) {
@@ -13,13 +15,28 @@ public class EditarFrame {
         String[] tipos = {"Administrador", "Contenidos", "Limitado"};
         JComboBox<String> cbTipo = new JComboBox<>(tipos);
         cbTipo.setSelectedItem(user.getTipo());
+        JCheckBox showPass = new JCheckBox("Mostrar Contraseña");
+
         Object[] message = {
             "Nombre Completo:", tfNombre,
             "Username (no editable):", tfUser,
             "Password:", tfPass,
             "Edad:", tfEdad,
-            "Tipo de Usuario:", cbTipo
+            "Tipo de Usuario:", cbTipo,
+            showPass
         };
+
+        showPass.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (showPass.isSelected()) {
+                    tfPass.setEchoChar((char) 0);
+                } else {
+                    tfPass.setEchoChar('•');
+                }
+            }
+        });
+
         int option = JOptionPane.showConfirmDialog(null, message, "Editar Usuario", JOptionPane.OK_CANCEL_OPTION);
         if (option == JOptionPane.OK_OPTION) {
             try {

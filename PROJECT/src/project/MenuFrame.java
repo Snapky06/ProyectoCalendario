@@ -9,7 +9,7 @@ public class MenuFrame extends FrontEnd {
     private JButton btnReportes = new JButton("Reportes");
     private JButton btnSalir = new JButton("Cerrar Sesión");
     private JLabel tit = new JLabel("Menú Principal");
-    private final String imagen = "/proyectocal/imagenes/fondoNeg.png";
+    private final String imagen = "/proyectocal/imagenes/prueba2.jpg";
 
     public MenuFrame() {
         FrameConFondo(this, cargarFondo(imagen));

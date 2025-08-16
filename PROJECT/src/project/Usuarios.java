@@ -2,6 +2,8 @@ package project;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
 
 public final class Usuarios {
@@ -9,14 +11,12 @@ public final class Usuarios {
     public static LogicaUsuario usuarioLogeado = null;
 
     public static boolean validarUserVisual() {
-        // --- CÓDIGO CORREGIDO Y LIMPIO ---
-        // Este panel se crea y usa EXCLUSIVAMENTE para el diálogo emergente.
-        // Esto evita que aparezca una segunda interfaz de login en la pantalla principal.
         JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints gbc = new GridBagConstraints();
         
         JTextField userField = new JTextField(14);
         JPasswordField passField = new JPasswordField(14);
+        JCheckBox showPass = new JCheckBox("Mostrar Contraseña");
 
         gbc.insets = new Insets(6, 6, 6, 6);
         gbc.anchor = GridBagConstraints.WEST;
@@ -24,6 +24,18 @@ public final class Usuarios {
         gbc.gridx = 1; gbc.gridy = 0; gbc.fill = GridBagConstraints.HORIZONTAL; panel.add(userField, gbc);
         gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE; panel.add(new JLabel("Contraseña:"), gbc);
         gbc.gridx = 1; gbc.gridy = 1; gbc.fill = GridBagConstraints.HORIZONTAL; panel.add(passField, gbc);
+        gbc.gridx = 1; gbc.gridy = 2; gbc.fill = GridBagConstraints.NONE; panel.add(showPass, gbc);
+
+        showPass.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (showPass.isSelected()) {
+                    passField.setEchoChar((char) 0);
+                } else {
+                    passField.setEchoChar('•');
+                }
+            }
+        });
 
         int result = JOptionPane.showConfirmDialog(null, panel, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
         
@@ -52,7 +64,6 @@ public final class Usuarios {
         return false;
     }
 
-    // ... (El resto de los métodos de la clase permanecen igual)
 
     public static int indiceUsuarios(String user) {
         for (int i = 0; i < users.size(); i++) {

@@ -10,7 +10,7 @@ public class EventosFrame extends FrontEnd {
     private JButton btnVer = new JButton("Ver Evento");
     private JButton btnRegresar = new JButton("Regresar al Menú");
     private JLabel tit = new JLabel("Gestión de Eventos");
-    private final String imagen = "/proyectocal/imagenes/fondoNeg.png";
+    private final String imagen = "/proyectocal/imagenes/prueba5.jpg";
 
     public EventosFrame() {
         FrameConFondo(this, cargarFondo(imagen));

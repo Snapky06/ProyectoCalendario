@@ -9,7 +9,7 @@ public class usuariosFrame extends FrontEnd {
     private JButton btnBorrar = new JButton("Borrar Usuario");
     private JButton btnRegresar = new JButton("Regresar al Menú");
     private JLabel tit = new JLabel("Gestión de Usuarios");
-    private final String imagen = "/proyectocal/imagenes/fondoNeg.png";
+    private final String imagen = "/proyectocal/imagenes/prueba3.jpg";
 
     public usuariosFrame() {
         FrameConFondo(this, cargarFondo(imagen));
