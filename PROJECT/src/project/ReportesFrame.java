@@ -15,12 +15,11 @@ public class ReportesFrame extends FrontEnd {
 
     public ReportesFrame() {
         FrameConFondo(this, cargarFondo(imagen));
-        transicionSuave.fadeIn(this);
         titulo1(tit);
         JButton[] botones = {btnFuturos, btnRealizados, btnCancelados, btnIngresoFecha, btnPerfil, btnRegresar};
         layoutBtn(botones);
         acciones();
-        this.setVisible(true);
+        transicionSuave.fadeIn(this);
     }
 
     private void acciones() {
@@ -29,8 +28,6 @@ public class ReportesFrame extends FrontEnd {
         btnCancelados.addActionListener(e -> Reportes.listarEventos("Cancelados"));
         btnIngresoFecha.addActionListener(e -> Reportes.ingresoPorFecha());
         btnPerfil.addActionListener(e -> Reportes.verPerfilUsuario());
-        btnRegresar.addActionListener(e -> {
-            transicionSuave.fadeOut(this, () -> new MenuFrame());
-        });
+        btnRegresar.addActionListener(e -> transicionSuave.fadeOut(this, () -> new MenuFrame()));
     }
 }

@@ -1,6 +1,7 @@
 package project;
 
 import javax.swing.*;
+import java.util.ArrayList;
 
 public class EventosFrame extends FrontEnd {
 
@@ -14,16 +15,36 @@ public class EventosFrame extends FrontEnd {
 
     public EventosFrame() {
         FrameConFondo(this, cargarFondo(imagen));
-        transicionSuave.fadeIn(this);
         titulo1(tit);
-        if (Usuarios.esLimitado()) {
-            btnCrear.setEnabled(false);
-            btnEditar.setEnabled(false);
+        
+        ArrayList<JButton> botones = new ArrayList<>();
+
+        if (!Usuarios.esLimitado()) {
+            botones.add(btnCrear);
+            botones.add(btnEditar);
         }
-        JButton[] botones = {btnCrear, btnEditar, btnEliminar, btnVer, btnRegresar};
-        layoutBtn(botones);
+
+        boolean puedeCancelar = false;
+        if (!Usuarios.esLimitado()) {
+            puedeCancelar = true;
+        } else { 
+            if (Usuarios.usuarioLogeado != null && 
+                Usuarios.usuarioLogeado.getEventosCreados() != null && 
+                !Usuarios.usuarioLogeado.getEventosCreados().isEmpty()) {
+                puedeCancelar = true;
+            }
+        }
+
+        if (puedeCancelar) {
+            botones.add(btnEliminar);
+        }
+
+        botones.add(btnVer);
+        botones.add(btnRegresar);
+        
+        layoutBtn(botones.toArray(new JButton[0]));
         acciones();
-        this.setVisible(true);
+        transicionSuave.fadeIn(this);
     }
 
     private void acciones() {
@@ -32,7 +53,7 @@ public class EventosFrame extends FrontEnd {
         btnEliminar.addActionListener(e -> GestionEventos.eliminarEvento());
         btnVer.addActionListener(e -> GestionEventos.verEvento());
         btnRegresar.addActionListener(e -> {
-        transicionSuave.fadeOut(this, () -> new MenuFrame());
+            transicionSuave.fadeOut(this, () -> new MenuFrame());
         });
     }
 }

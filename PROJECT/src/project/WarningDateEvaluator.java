@@ -9,6 +9,14 @@ import java.util.Date;
 
 public class WarningDateEvaluator implements IDateEvaluator {
 
+    private boolean isEditingMode = false;
+
+    public WarningDateEvaluator() {}
+
+    public WarningDateEvaluator(boolean isEditing) {
+        this.isEditingMode = isEditing;
+    }
+
     @Override
     public boolean isSpecial(Date date) {
         if (Usuarios.esAdmin()) {
@@ -36,12 +44,17 @@ public class WarningDateEvaluator implements IDateEvaluator {
 
     @Override
     public boolean isInvalid(Date date) {
+        if (isEditingMode && !Usuarios.esAdmin()) {
+            LocalDate calendarDate = date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
+            LocalDate unaSemanaDespues = LocalDate.now().plusWeeks(1);
+            return calendarDate.isBefore(unaSemanaDespues);
+        }
         return false;
     }
 
     @Override
     public Color getInvalidForegroundColor() {
-        return null;
+        return Color.GRAY;
     }
 
     @Override
@@ -51,6 +64,9 @@ public class WarningDateEvaluator implements IDateEvaluator {
 
     @Override
     public String getInvalidTooltip() {
+        if (isEditingMode) {
+            return "La nueva fecha debe ser al menos una semana después de hoy.";
+        }
         return null;
     }
 }

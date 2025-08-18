@@ -8,6 +8,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Stream;
 import javax.swing.BorderFactory;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -23,6 +24,39 @@ public final class GestionEventos {
         if (index >= eventos.size()) return null;
         if (eventos.get(index).getCodigo().equals(codigo)) return eventos.get(index);
         return buscarEventoRecursivo(codigo, index + 1);
+    }
+
+    private static String[] getCodigosDeEventos(boolean paraVer) {
+        Stream<Evento> streamEventos = eventos.stream();
+
+        if (!paraVer && !Usuarios.esAdmin()) {
+            streamEventos = streamEventos.filter(e -> e.getCreador().equals(Usuarios.usuarioLogeado.getUser()));
+        }
+
+        return streamEventos.map(e -> e.getCodigo() + " - " + e.getTitulo())
+                            .toArray(String[]::new);
+    }
+
+    private static String seleccionarCodigoEvento(String proposito, boolean paraVer) {
+        String[] codigos = getCodigosDeEventos(paraVer);
+        if (codigos.length == 0) {
+            JOptionPane.showMessageDialog(null, "No hay eventos disponibles para " + proposito + ".");
+            return null;
+        }
+        String seleccion = (String) JOptionPane.showInputDialog(
+            null, 
+            "Seleccione el evento a " + proposito + ":",
+            proposito.substring(0, 1).toUpperCase() + proposito.substring(1) + " Evento", 
+            JOptionPane.QUESTION_MESSAGE, 
+            null, 
+            codigos, 
+            codigos[0]
+        );
+
+        if (seleccion != null) {
+            return seleccion.split(" - ")[0];
+        }
+        return null;
     }
 
     public static void crearEvento() {
@@ -62,8 +96,8 @@ public final class GestionEventos {
         JTextField descripcion = new JTextField();
         JDateChooser fechaChooser = new JDateChooser();
         
-        fechaChooser.getJCalendar().getDayChooser().addDateEvaluator(new OcupadoDateEvaluator());
         fechaChooser.getJCalendar().getDayChooser().addDateEvaluator(new WarningDateEvaluator());
+        fechaChooser.getJCalendar().getDayChooser().addDateEvaluator(new OcupadoDateEvaluator());
         fechaChooser.repaint();
 
         JTextField monto = new JTextField();
@@ -149,8 +183,9 @@ public final class GestionEventos {
             JOptionPane.showMessageDialog(null, "Los usuarios limitados no pueden editar eventos.");
             return;
         }
-        String codigo = JOptionPane.showInputDialog("Ingrese el código del evento a editar:");
-        if (codigo == null || codigo.trim().isEmpty()) return;
+        
+        String codigo = seleccionarCodigoEvento("editar", false);
+        if (codigo == null) return;
         
         Evento evento = buscarEventoRecursivo(codigo, 0);
         if (evento == null) {
@@ -159,9 +194,20 @@ public final class GestionEventos {
         }
         
         String[] opciones = {"Editar Datos Generales", "Añadir Personas/Jugadores"};
-        if (evento instanceof EventoReligioso) {
+        if (evento instanceof EventoDeportivo) {
+            EventoDeportivo ed = (EventoDeportivo) evento;
+            if (!ed.jugadoresEq1.isEmpty() || !ed.jugadoresEq2.isEmpty()) {
+                opciones[1] = "Cambiar Jugadores";
+            }
+        } else if (evento instanceof EventoMusical) {
+            EventoMusical em = (EventoMusical) evento;
+            if (!em.equipoStaff.isEmpty()) {
+                opciones[1] = "Cambiar Staff";
+            }
+        } else if (evento instanceof EventoReligioso) {
             opciones = new String[]{"Editar Datos Generales", "Registrar Personas Convertidas"};
         }
+        
         int seleccion = JOptionPane.showOptionDialog(null, "Seleccione qué desea editar", "Editar Evento", 
                                                     JOptionPane.DEFAULT_OPTION, JOptionPane.INFORMATION_MESSAGE, null, opciones, opciones[0]);
 
@@ -171,7 +217,7 @@ public final class GestionEventos {
             JDateChooser fechaChooser = new JDateChooser(Date.from(evento.getFecha().atStartOfDay(ZoneId.systemDefault()).toInstant()));
             
             fechaChooser.getJCalendar().getDayChooser().addDateEvaluator(new OcupadoDateEvaluator());
-            fechaChooser.getJCalendar().getDayChooser().addDateEvaluator(new WarningDateEvaluator());
+            fechaChooser.getJCalendar().getDayChooser().addDateEvaluator(new WarningDateEvaluator(true));
             fechaChooser.repaint();
 
             Object[] message = {"Título:", titulo, "Descripción:", descripcion, "Fecha:", fechaChooser};
@@ -188,6 +234,8 @@ public final class GestionEventos {
         } else if (seleccion == 1) {
             if (evento instanceof EventoDeportivo) {
                 EventoDeportivo ed = (EventoDeportivo) evento;
+                ed.jugadoresEq1.clear();
+                ed.jugadoresEq2.clear();
                 int tamanoEquipo = ed.tipoDeporte.getTamanoEquipo();
 
                 JPanel panelEquipo1 = new JPanel(new GridLayout(tamanoEquipo, 2, 5, 5));
@@ -231,9 +279,10 @@ public final class GestionEventos {
                 }
             } else if (evento instanceof EventoMusical) {
                 EventoMusical em = (EventoMusical) evento;
+                em.equipoStaff.clear();
                 try {
                     int staffAAnadir = Integer.parseInt(JOptionPane.showInputDialog("¿Cuántos miembros de staff desea añadir?"));
-                    if (em.equipoStaff.size() + staffAAnadir > 40) {
+                    if (staffAAnadir > 40) {
                         JOptionPane.showMessageDialog(null, "No se pueden añadir más de 40 miembros de staff en total.");
                         return;
                     }
@@ -277,8 +326,9 @@ public final class GestionEventos {
     }
 
     public static void eliminarEvento() {
-        String codigo = JOptionPane.showInputDialog("Ingrese el código del evento a cancelar:");
-        if (codigo == null || codigo.trim().isEmpty()) return;
+        String codigo = seleccionarCodigoEvento("cancelar", false);
+        if (codigo == null) return;
+        
         Evento evento = buscarEventoRecursivo(codigo.trim(), 0);
         if (evento == null) {
             JOptionPane.showMessageDialog(null, "El evento no existe.");
@@ -288,28 +338,30 @@ public final class GestionEventos {
             JOptionPane.showMessageDialog(null, "Este evento ya ha sido cancelado.");
             return;
         }
-        if (!evento.getCreador().equals(Usuarios.usuarioLogeado.getUser())) {
-            JOptionPane.showMessageDialog(null, "Solo el usuario que creó el evento puede cancelarlo.");
+        if (!Usuarios.esAdmin() && !evento.getCreador().equals(Usuarios.usuarioLogeado.getUser())) {
+            JOptionPane.showMessageDialog(null, "Solo el usuario que creó el evento o un administrador pueden cancelarlo.");
             return;
         }
         if (evento.getFecha().isBefore(LocalDate.now())) {
             JOptionPane.showMessageDialog(null, "No se puede cancelar un evento que ya se realizó.");
             return;
         }
+        
         long diasAnticipacion = ChronoUnit.DAYS.between(LocalDate.now(), evento.getFecha());
-        double multa = 0;
-        if (diasAnticipacion <= 1) {
-            multa = evento.getMultaCancelacion();
+        if (diasAnticipacion == 1) {
+            double multa = evento.getMultaCancelacion();
             evento.setMultaPagada(multa);
-            JOptionPane.showMessageDialog(null, "Se ha cobrado una multa de Lps. " + multa + " por cancelación tardía.");
+            JOptionPane.showMessageDialog(null, "Se ha cobrado una multa de Lps. " + multa + " por cancelar un día antes del evento.");
         }
+        
         evento.setCancelado(true);
         JOptionPane.showMessageDialog(null, "El evento ha sido cancelado exitosamente.");
     }
     
     public static void verEvento() {
-        String codigo = JOptionPane.showInputDialog("Ingrese el código del evento a ver:");
-        if (codigo == null || codigo.trim().isEmpty()) return;
+        String codigo = seleccionarCodigoEvento("ver", true);
+        if (codigo == null) return;
+        
         Evento evento = buscarEventoRecursivo(codigo.trim(), 0);
         if (evento == null) {
             JOptionPane.showMessageDialog(null, "El evento no existe.");

@@ -3,6 +3,7 @@ package project;
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.function.Supplier;
 
 public class transicionSuave {
 
@@ -26,7 +27,7 @@ public class transicionSuave {
         timer.start();
     }
 
-    public static void fadeOut(JFrame frame, Runnable nextAction) {
+    public static void fadeOut(JFrame ventanaActual, Supplier<JFrame> CreadorDeProximaVentana) {
         Timer timer = new Timer(15, new ActionListener() {
             private float opacity = 1f;
 
@@ -36,10 +37,12 @@ public class transicionSuave {
                 if (opacity <= 0.0f) {
                     opacity = 0.0f;
                     ((Timer) e.getSource()).stop();
-                    frame.dispose(); 
-                    nextAction.run(); 
+                    ventanaActual.dispose();
+                    
+
+                    CreadorDeProximaVentana.get();
                 }
-                frame.setOpacity(opacity);
+                ventanaActual.setOpacity(opacity);
             }
         });
         timer.start();

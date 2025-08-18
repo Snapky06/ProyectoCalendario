@@ -37,7 +37,7 @@ public final class Reportes {
         switch (tipoReporte) {
             case "Futuros":
                 reporte.append("--- Eventos Futuros ---\n");
-                for (Evento e : GestionEventos.eventos) if (e.getFecha().isAfter(hoy) && !e.isCancelado()) filtrados.add(e);
+                for (Evento e : GestionEventos.eventos) if (!e.getFecha().isBefore(hoy) && !e.isCancelado()) filtrados.add(e);
                 break;
             case "Realizados":
                 reporte.append("--- Eventos Realizados ---\n");
@@ -69,18 +69,39 @@ public final class Reportes {
     }
 
     public static void ingresoPorFecha() {
+
         JDateChooser fechaIniChooser = new JDateChooser();
+        int optionIni = JOptionPane.showConfirmDialog(null, 
+                new Object[]{"Seleccione la Fecha Inicial:", fechaIniChooser}, 
+                "Ingreso por Rango de Fechas (Paso 1 de 2)", 
+                JOptionPane.OK_CANCEL_OPTION);
+
+        if (optionIni != JOptionPane.OK_OPTION) return;
+        
+        Date fechaSeleccionadaIni = fechaIniChooser.getDate();
+        if (fechaSeleccionadaIni == null) {
+            JOptionPane.showMessageDialog(null, "Debe seleccionar una fecha inicial.");
+            return;
+        }
+
         JDateChooser fechaFinChooser = new JDateChooser();
-        Object[] message = {"Fecha Inicial:", fechaIniChooser, "Fecha Final:", fechaFinChooser};
-        int option = JOptionPane.showConfirmDialog(null, message, "Ingreso por Rango de Fechas", JOptionPane.OK_CANCEL_OPTION);
-        if (option != JOptionPane.OK_OPTION) return;
+        fechaFinChooser.setMinSelectableDate(fechaSeleccionadaIni); 
+        fechaFinChooser.setDate(fechaSeleccionadaIni); 
+
+        int optionFin = JOptionPane.showConfirmDialog(null, 
+                new Object[]{"Seleccione la Fecha Final:", fechaFinChooser}, 
+                "Ingreso por Rango de Fechas (Paso 2 de 2)", 
+                JOptionPane.OK_CANCEL_OPTION);
+
+        if (optionFin != JOptionPane.OK_OPTION) return;
+
+        Date fechaSeleccionadaFin = fechaFinChooser.getDate();
+        if (fechaSeleccionadaFin == null) {
+            JOptionPane.showMessageDialog(null, "Debe seleccionar una fecha final.");
+            return;
+        }
+
         try {
-            Date fechaSeleccionadaIni = fechaIniChooser.getDate();
-            Date fechaSeleccionadaFin = fechaFinChooser.getDate();
-            if (fechaSeleccionadaIni == null || fechaSeleccionadaFin == null) {
-                JOptionPane.showMessageDialog(null, "Debe seleccionar ambas fechas.");
-                return;
-            }
             LocalDate inicio = fechaSeleccionadaIni.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             LocalDate fin = fechaSeleccionadaFin.toInstant().atZone(ZoneId.systemDefault()).toLocalDate();
             ArrayList<Evento> filtrados = new ArrayList<>();

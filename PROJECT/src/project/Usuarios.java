@@ -11,59 +11,73 @@ public final class Usuarios {
     public static LogicaUsuario usuarioLogeado = null;
 
     public static boolean validarUserVisual() {
-        JPanel panel = new JPanel(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        
-        JTextField userField = new JTextField(14);
-        JPasswordField passField = new JPasswordField(14);
-        JCheckBox showPass = new JCheckBox("Mostrar Contraseña");
+        while (true) { 
+            JPanel panel = new JPanel(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            
+            JTextField userField = new JTextField(14);
+            JPasswordField passField = new JPasswordField(14);
+            JCheckBox showPass = new JCheckBox("Mostrar Contraseña");
 
-        gbc.insets = new Insets(6, 6, 6, 6);
-        gbc.anchor = GridBagConstraints.WEST;
-        gbc.gridx = 0; gbc.gridy = 0; panel.add(new JLabel("Usuario:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 0; gbc.fill = GridBagConstraints.HORIZONTAL; panel.add(userField, gbc);
-        gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE; panel.add(new JLabel("Contraseña:"), gbc);
-        gbc.gridx = 1; gbc.gridy = 1; gbc.fill = GridBagConstraints.HORIZONTAL; panel.add(passField, gbc);
-        gbc.gridx = 1; gbc.gridy = 2; gbc.fill = GridBagConstraints.NONE; panel.add(showPass, gbc);
+            gbc.insets = new Insets(6, 6, 6, 6);
+            gbc.anchor = GridBagConstraints.WEST;
+            gbc.gridx = 0; gbc.gridy = 0; panel.add(new JLabel("Usuario:"), gbc);
+            gbc.gridx = 1; gbc.gridy = 0; gbc.fill = GridBagConstraints.HORIZONTAL; panel.add(userField, gbc);
+            gbc.gridx = 0; gbc.gridy = 1; gbc.fill = GridBagConstraints.NONE; panel.add(new JLabel("Contraseña:"), gbc);
+            gbc.gridx = 1; gbc.gridy = 1; gbc.fill = GridBagConstraints.HORIZONTAL; panel.add(passField, gbc);
+            gbc.gridx = 1; gbc.gridy = 2; gbc.fill = GridBagConstraints.NONE; panel.add(showPass, gbc);
 
-        showPass.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
+            showPass.addActionListener(e -> {
                 if (showPass.isSelected()) {
                     passField.setEchoChar((char) 0);
                 } else {
                     passField.setEchoChar('•');
                 }
-            }
-        });
+            });
 
-        int result = JOptionPane.showConfirmDialog(null, panel, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
-        
-        if (result != JOptionPane.OK_OPTION) return false;
-        
-        String user = userField.getText();
-        String pass = new String(passField.getPassword());
-        
-        if (user.trim().isEmpty() || pass.trim().isEmpty()) {
-            JOptionPane.showMessageDialog(null, "Usuario o Contraseña vacíos");
-            return false;
-        }
-        for (LogicaUsuario e : users) {
-            if (e.getUser().equals(user)) {
-                if (e.getPass().equals(pass)) {
-                    JOptionPane.showMessageDialog(null, "Bienvenido " + e.getNombre());
-                    usuarioLogeado = e;
-                    return true;
-                } else {
-                    JOptionPane.showMessageDialog(null, "La contraseña es errónea");
-                    return false;
+            int result = JOptionPane.showConfirmDialog(null, panel, "Login", JOptionPane.OK_CANCEL_OPTION, JOptionPane.PLAIN_MESSAGE);
+            
+            if (result != JOptionPane.OK_OPTION) {
+                return false; 
+            }
+            
+            String user = userField.getText();
+            String pass = new String(passField.getPassword());
+            
+            if (user.trim().isEmpty() || pass.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(null, "Usuario o Contraseña vacíos");
+            } else {
+                boolean userFound = false;
+                for (LogicaUsuario e : users) {
+                    if (e.getUser().equals(user)) {
+                        userFound = true;
+                        if (e.getPass().equals(pass)) {
+                            JOptionPane.showMessageDialog(null, "Bienvenido " + e.getNombre());
+                            usuarioLogeado = e;
+                            return true; 
+                        } else {
+                            JOptionPane.showMessageDialog(null, "La contraseña es errónea");
+                            break; 
+                        }
+                    }
+                }
+                if (!userFound) {
+                    JOptionPane.showMessageDialog(null, "Usuario no encontrado");
                 }
             }
-        }
-        JOptionPane.showMessageDialog(null, "Usuario no encontrado");
-        return false;
-    }
 
+            int retry = JOptionPane.showConfirmDialog(
+                null, 
+                "¿Desea volver a intentar?", 
+                "Error de Autenticación", 
+                JOptionPane.YES_NO_OPTION
+            );
+
+            if (retry != JOptionPane.YES_OPTION) {
+                return false; 
+            }
+        }
+    }
 
     public static int indiceUsuarios(String user) {
         for (int i = 0; i < users.size(); i++) {
@@ -74,14 +88,29 @@ public final class Usuarios {
 
     public static void editarUsuario(int index, String tipo, String nombre, String user, String pass, int edad) {
         if (index != -1) {
+            LogicaUsuario oldUser = users.get(index);
+            ArrayList<String> existingEvents = oldUser.getEventosCreados();
+
             LogicaUsuario updatedUser = null;
             switch (tipo) {
                 case "Administrador": updatedUser = new UsuarioAdmin(nombre, user, pass, edad); break;
                 case "Contenidos": updatedUser = new UsuarioContenidos(nombre, user, pass, edad); break;
                 case "Limitado": updatedUser = new UsuarioLimitado(nombre, user, pass, edad); break;
             }
+
             if (updatedUser != null) {
+                if (existingEvents != null) {
+                    updatedUser.eventosCreados = existingEvents;
+                } else if (updatedUser.getEventosCreados() == null) {
+                    updatedUser.eventosCreados = new ArrayList<>();
+                }
+                
                 users.set(index, updatedUser);
+                
+                if (usuarioLogeado != null && usuarioLogeado.getUser().equals(user)) {
+                    usuarioLogeado = updatedUser;
+                }
+                
                 JOptionPane.showMessageDialog(null, "Usuario actualizado correctamente.");
             }
         }

@@ -8,20 +8,18 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class FrontEnd extends JFrame {
-
-    // Paleta de colores refinada con un hover más oscuro y texto off-white
-    private static final Color BACKGROUND_COMPONENTS = new Color(45, 45, 58);
-    private static final Color BUTTON_HOVER_BACKGROUND = new Color(30, 32, 42); // Azul muy oscuro para el fondo del hover
-    private static final Color TEXT_COLOR = new Color(236, 236, 234); // Blanco hueso (off-white)
+  private static final Color BACKGROUND_COMPONENTS = new Color(45, 45, 58);
+    private static final Color BUTTON_HOVER_BACKGROUND = new Color(30, 32, 42); 
+    private static final Color TEXT_COLOR = new Color(236, 236, 234);
     private static final Color BORDER_COLOR = new Color(68, 85, 132);
-    private static final Color BORDER_HOVER_COLOR = new Color(40, 50, 70); // Borde oscuro para el hover
+    private static final Color BORDER_HOVER_COLOR = new Color(40, 50, 70); 
 
     public FrontEnd() {}
 
     public void FrameConFondo(JFrame frame, Image bg) {
         frame.setExtendedState(JFrame.MAXIMIZED_BOTH);
         frame.setUndecorated(true);
-        frame.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+        frame.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 
         JPanel bgPanel = new JPanel() {
             @Override
@@ -56,7 +54,7 @@ public class FrontEnd extends JFrame {
     }
 
     public void titulo1(JLabel titleLabel) {
-        titleLabel.setFont(new Font("Georgia", Font.BOLD, 85)); // Fuente elegante
+        titleLabel.setFont(new Font("Georgia", Font.BOLD, 85));
         titleLabel.setForeground(TEXT_COLOR);
         titleLabel.setBackground(BACKGROUND_COMPONENTS);
         titleLabel.setOpaque(true);
@@ -73,7 +71,7 @@ public class FrontEnd extends JFrame {
     }
 
     public void disBoton(JButton[] btn) {
-        Font buttonFont = new Font("Georgia", Font.BOLD, 28); // Fuente elegante y tamaño ajustado
+        Font buttonFont = new Font("Georgia", Font.BOLD, 28); 
         Dimension buttonSize = new Dimension(500, 80);
 
         for (JButton b : btn) {

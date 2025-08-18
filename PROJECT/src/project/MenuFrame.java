@@ -1,6 +1,7 @@
 package project;
 
 import javax.swing.*;
+import java.util.ArrayList;
 
 public class MenuFrame extends FrontEnd {
 
@@ -13,12 +14,21 @@ public class MenuFrame extends FrontEnd {
 
     public MenuFrame() {
         FrameConFondo(this, cargarFondo(imagen));
-        transicionSuave.fadeIn(this);
         titulo1(tit);
-        JButton[] botones = {btnEventos, btnUsuarios, btnReportes, btnSalir};
-        layoutBtn(botones);
+
+        ArrayList<JButton> botones = new ArrayList<>();
+        botones.add(btnEventos);
+
+        if (Usuarios.esAdmin()) {
+            botones.add(btnUsuarios);
+        }
+
+        botones.add(btnReportes);
+        botones.add(btnSalir);
+
+        layoutBtn(botones.toArray(new JButton[0]));
         acciones();
-        this.setVisible(true);
+        transicionSuave.fadeIn(this);
     }
 
     public void acciones() {
@@ -40,7 +50,7 @@ public class MenuFrame extends FrontEnd {
 
         btnSalir.addActionListener(e -> {
             Usuarios.usuarioLogeado = null;
-        transicionSuave.fadeOut(this, () -> new Main());
+            transicionSuave.fadeOut(this, () -> new Main());
         });
     }
 }

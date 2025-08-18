@@ -18,7 +18,6 @@ public class usuariosFrame extends FrontEnd {
         JButton[] botones = {btnCrear, btnEditar, btnBorrar, btnRegresar};
         layoutBtn(botones);
         acciones();
-        this.setVisible(true);
     }
 
     public void acciones() {
@@ -29,7 +28,10 @@ public class usuariosFrame extends FrontEnd {
             if (userToEdit != null && !userToEdit.trim().isEmpty()) {
                 int index = Usuarios.indiceUsuarios(userToEdit.trim());
                 if (index != -1) {
-                    new EditarFrame(index);
+                    boolean selfDemoted = new EditarFrame(index).isSelfDemoted();
+                    if (selfDemoted) {
+                        transicionSuave.fadeOut(this, () -> new MenuFrame());
+                    }
                 } else {
                     JOptionPane.showMessageDialog(this, "Usuario no encontrado.");
                 }
