@@ -53,6 +53,11 @@ public class crearUsuarioFrame {
                     return;
                 }
 
+                if (!nombre.matches("^[a-zA-Z ]+$")) {
+                    JOptionPane.showMessageDialog(null, "El nombre completo solo puede contener letras y espacios.");
+                    return;
+                }
+
                 if (!pass.equals(confirmPass)) {
                     JOptionPane.showMessageDialog(null, "Las contraseñas no coinciden.");
                     return;

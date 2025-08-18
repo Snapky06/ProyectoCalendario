@@ -54,22 +54,22 @@ public final class Reportes {
         }
         filtrados.sort((e1, e2) -> e2.getFecha().compareTo(e1.getFecha()));
         for (Evento e : filtrados) {
+            double monto = e.isCancelado() ? e.getMultaPagada() : e.getMontoRenta();
             reporte.append("COD: ").append(e.getCodigo()).append(" - TIPO: ").append(e.getClass().getSimpleName())
                    .append(" - TITULO: ").append(e.getTitulo()).append(" - FECHA: ").append(e.getFecha())
-                   .append(" - MONTO: ").append(e.isCancelado() ? e.getMultaPagada() : e.getMontoRenta()).append("\n");
+                   .append(" - MONTO: ").append(String.format("%.2f", monto)).append("\n");
         }
         reporte.append("\n--- Estadísticas ---\n");
         reporte.append("Deportivos: ").append(contarEventosPorTipo(filtrados, EventoDeportivo.class, 0)).append("\n");
         reporte.append("Musicales: ").append(contarEventosPorTipo(filtrados, EventoMusical.class, 0)).append("\n");
         reporte.append("Religiosos: ").append(contarEventosPorTipo(filtrados, EventoReligioso.class, 0)).append("\n\n");
-        reporte.append("Monto Total (Deportivos): ").append(sumarMontosPorTipo(filtrados, EventoDeportivo.class, 0)).append("\n");
-        reporte.append("Monto Total (Musicales): ").append(sumarMontosPorTipo(filtrados, EventoMusical.class, 0)).append("\n");
-        reporte.append("Monto Total (Religiosos): ").append(sumarMontosPorTipo(filtrados, EventoReligioso.class, 0)).append("\n");
+        reporte.append("Monto Total (Deportivos): ").append(String.format("%.2f", sumarMontosPorTipo(filtrados, EventoDeportivo.class, 0))).append("\n");
+        reporte.append("Monto Total (Musicales): ").append(String.format("%.2f", sumarMontosPorTipo(filtrados, EventoMusical.class, 0))).append("\n");
+        reporte.append("Monto Total (Religiosos): ").append(String.format("%.2f", sumarMontosPorTipo(filtrados, EventoReligioso.class, 0))).append("\n");
         JOptionPane.showMessageDialog(null, new JTextArea(reporte.toString()));
     }
 
     public static void ingresoPorFecha() {
-
         JDateChooser fechaIniChooser = new JDateChooser();
         int optionIni = JOptionPane.showConfirmDialog(null, 
                 new Object[]{"Seleccione la Fecha Inicial:", fechaIniChooser}, 
@@ -85,8 +85,8 @@ public final class Reportes {
         }
 
         JDateChooser fechaFinChooser = new JDateChooser();
-        fechaFinChooser.setMinSelectableDate(fechaSeleccionadaIni); 
-        fechaFinChooser.setDate(fechaSeleccionadaIni); 
+        fechaFinChooser.setMinSelectableDate(fechaSeleccionadaIni);
+        fechaFinChooser.setDate(fechaSeleccionadaIni);
 
         int optionFin = JOptionPane.showConfirmDialog(null, 
                 new Object[]{"Seleccione la Fecha Final:", fechaFinChooser}, 
@@ -112,7 +112,7 @@ public final class Reportes {
             }
             double totalGenerado = sumarMontosRecursivo(filtrados, 0);
             StringBuilder reporte = new StringBuilder("--- Ingresos entre " + inicio + " y " + fin + " ---\n");
-            reporte.append("Total Generado (incluye rentas y multas): Lps. ").append(totalGenerado).append("\n\n");
+            reporte.append("Total Generado (incluye rentas y multas): Lps. ").append(String.format("%.2f", totalGenerado)).append("\n\n");
             reporte.append("--- Detalle de Eventos en Rango ---\n");
             reporte.append("Deportivos: ").append(contarEventosPorTipo(filtrados, EventoDeportivo.class, 0)).append("\n");
             reporte.append("Musicales: ").append(contarEventosPorTipo(filtrados, EventoMusical.class, 0)).append("\n");
@@ -131,7 +131,7 @@ public final class Reportes {
                 Evento evento = GestionEventos.buscarEventoRecursivo(codigoEvento, 0);
                 if (evento != null) {
                     perfil += "ID: " + evento.getCodigo() + " - TIPO: " + evento.getClass().getSimpleName() + 
-                              " - TITULO: " + evento.getTitulo() + " - MONTO: " + evento.getMontoRenta() + "\n";
+                              " - TITULO: " + evento.getTitulo() + " - MONTO: " + String.format("%.2f", evento.getMontoRenta()) + "\n";
                 }
             }
         }

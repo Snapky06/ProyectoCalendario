@@ -8,9 +8,10 @@ import java.io.IOException;
 import javax.imageio.ImageIO;
 
 public class FrontEnd extends JFrame {
-  private static final Color BACKGROUND_COMPONENTS = new Color(45, 45, 58);
+
+    private static final Color BACKGROUND_COMPONENTS = new Color(45, 45, 58);
     private static final Color BUTTON_HOVER_BACKGROUND = new Color(30, 32, 42); 
-    private static final Color TEXT_COLOR = new Color(236, 236, 234);
+    private static final Color TEXT_COLOR = new Color(236, 236, 234); 
     private static final Color BORDER_COLOR = new Color(68, 85, 132);
     private static final Color BORDER_HOVER_COLOR = new Color(40, 50, 70); 
 
@@ -36,6 +37,19 @@ public class FrontEnd extends JFrame {
 
         frame.setContentPane(bgPanel);
         frame.getContentPane().setLayout(new GridBagLayout());
+
+        if (Usuarios.usuarioLogeado != null) {
+            JLabel userLabel = new JLabel("Usuario: " + Usuarios.usuarioLogeado.getUser());
+            userLabel.setFont(new Font("Georgia", Font.ITALIC, 16));
+            userLabel.setForeground(new Color(150, 150, 160));
+            
+            GridBagConstraints gbcUser = new GridBagConstraints();
+            gbcUser.gridx = 1;
+            gbcUser.gridy = 0;
+            gbcUser.anchor = GridBagConstraints.NORTHEAST;
+            gbcUser.insets = new Insets(10, 10, 10, 10);
+            frame.getContentPane().add(userLabel, gbcUser);
+        }
     }
 
     public Image cargarFondo(String imagen) {
@@ -54,7 +68,7 @@ public class FrontEnd extends JFrame {
     }
 
     public void titulo1(JLabel titleLabel) {
-        titleLabel.setFont(new Font("Georgia", Font.BOLD, 85));
+        titleLabel.setFont(new Font("Georgia", Font.BOLD, 85)); 
         titleLabel.setForeground(TEXT_COLOR);
         titleLabel.setBackground(BACKGROUND_COMPONENTS);
         titleLabel.setOpaque(true);
@@ -65,6 +79,7 @@ public class FrontEnd extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 0;
+        gbc.gridwidth = 2; 
         gbc.insets = new Insets(60, 20, 70, 20);
         gbc.anchor = GridBagConstraints.NORTH;
         getContentPane().add(titleLabel, gbc);
@@ -119,6 +134,7 @@ public class FrontEnd extends JFrame {
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridx = 0;
         gbc.gridy = 1;
+        gbc.gridwidth = 2;
         gbc.anchor = GridBagConstraints.CENTER;
         getContentPane().add(panel, gbc);
     }

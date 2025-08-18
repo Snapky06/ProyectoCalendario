@@ -48,6 +48,11 @@ public class EditarFrame {
                 String pass = new String(tfPass.getPassword());
                 int edad = Integer.parseInt(tfEdad.getText());
                 String tipo = (String) cbTipo.getSelectedItem();
+
+                if (!nombre.matches("^[a-zA-Z ]+$")) {
+                    JOptionPane.showMessageDialog(null, "El nombre completo solo puede contener letras y espacios.");
+                    return;
+                }
                 
                 Usuarios.editarUsuario(userIndex, tipo, nombre, user.getUser(), pass, edad);
 

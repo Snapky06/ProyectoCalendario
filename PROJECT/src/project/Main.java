@@ -4,7 +4,6 @@ import javax.swing.*;
 import java.awt.*;
 
 public class Main extends FrontEnd {
-
     public static PantallaDeCarga pantallaDeCargaInstancia;
 
     private final JLabel titleLabel = new JLabel("JAVA TICKET");
@@ -22,16 +21,11 @@ public class Main extends FrontEnd {
     }
 
     public void acciones() {
-
         btnCerrar.addActionListener(e -> System.exit(0));
 
         btnLogin.addActionListener(e -> {
             if (Usuarios.validarUserVisual()) {
-
-                pantallaDeCargaInstancia = new PantallaDeCarga();
-                pantallaDeCargaInstancia.setVisible(true);
                 transicionSuave.fadeOut(this, () -> new MenuFrame());
-
             }
         });
     }
@@ -40,6 +34,8 @@ public class Main extends FrontEnd {
         Usuarios.users.add(new UsuarioAdmin("Ing. Erick Amaya", "admin", "supersecreto", 34));
 
         SwingUtilities.invokeLater(() -> {
+            pantallaDeCargaInstancia = new PantallaDeCarga();
+            pantallaDeCargaInstancia.setVisible(true);
 
             new Main();
         });
